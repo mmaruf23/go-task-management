@@ -25,12 +25,12 @@ func TestCreateTask_Success(t *testing.T) {
 	service := NewTaskService(mockRepo)
 
 	userID := uuid.New()
-	req := &CreateTaskRequest{
+	req := CreateTaskRequest{
 		Title:       "ini sample title",
 		Description: nil,
 	}
 
-	task, err := service.CreateTask(ctx, &userID, req)
+	task, err := service.CreateTask(ctx, userID, req)
 
 	assert.NoError(t, err)
 	assert.NotEqual(t, 0, task.ID)
@@ -52,18 +52,23 @@ func TestGetTaskByUser_Success(t *testing.T) {
 
 			return tasks, nil
 		},
+		countTaskFunc: func(ctx context.Context, userID uuid.UUID) (int64, error) {
+			return 1, nil
+		},
 	}
 
 	service := NewTaskService(mockRepo)
 
 	ctx := context.Background()
 	userID := uuid.New()
+	pagination := PaginationRequest{}
+	pagination.Normalize()
 
-	tasks, err := service.GetUserTasks(ctx, &userID)
+	tasks, err := service.GetUserTasks(ctx, userID, pagination)
 
 	assert.NoError(t, err)
-	assert.Len(t, tasks, 1)
-	assert.Equal(t, "sample task", tasks[0].Title)
+	assert.Len(t, *tasks.Data, 1)
+	assert.Equal(t, "sample task", (*tasks.Data)[0].Title)
 
 }
 
@@ -72,6 +77,7 @@ func TestGetTaskByUser_Success(t *testing.T) {
 type mockTaskRepo struct {
 	createTaskFunc      func(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error)
 	listTasksByUserFunc func(ctx context.Context, arg repo.ListTaskByUserParams) ([]repo.Task, error)
+	countTaskFunc       func(ctx context.Context, userID uuid.UUID) (int64, error)
 }
 
 func (r *mockTaskRepo) CreateTask(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error) {
@@ -80,4 +86,8 @@ func (r *mockTaskRepo) CreateTask(ctx context.Context, arg repo.CreateTaskParams
 
 func (r *mockTaskRepo) ListTaskByUser(ctx context.Context, arg repo.ListTaskByUserParams) ([]repo.Task, error) {
 	return r.listTasksByUserFunc(ctx, arg)
+}
+
+func (r *mockTaskRepo) CountTaskByUser(ctx context.Context, userID uuid.UUID) (int64, error) {
+	return r.countTaskFunc(ctx, userID)
 }

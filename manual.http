@@ -1,8 +1,8 @@
 @url = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzI0NTQ2MzcsInVzZXJfaWQiOiJiNjFiNTk2Ny04ZmJlLTQ4YWEtYmM1MC05ZmVlOWMzMTY0ZTAifQ.oWRSX_4JHSkL4go6zTWykRGDJoMuKYt8Ujexcrz2z34
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzI0NzU0ODMsInVzZXJfaWQiOiJiNjFiNTk2Ny04ZmJlLTQ4YWEtYmM1MC05ZmVlOWMzMTY0ZTAifQ.CBEtZitIAAqmWx-WBBCCiLCt4yYx2oGJdDPEOr297V4
 
 ### REGISTER
-POST {{url}}/register HTTP/1.1
+POST {{url}}/auth/register HTTP/1.1
 Content-Type: application/json
 
 {
@@ -12,7 +12,7 @@ Content-Type: application/json
 }
 
 ### LOGIN
-POST {{url}}/login HTTP/1.1
+POST {{url}}/auth/login HTTP/1.1
 Content-Type: application/json
 
 {
@@ -26,6 +26,10 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "title": "title task test",
+  "title": "title task test 4",
   "description": "description test"
 }
+
+### GET USER TASK
+GET {{url}}/task?page=4&limit=1 HTTP/1.1
+Authorization: Bearer {{token}}

@@ -6,10 +6,11 @@ import (
 
 	"github.com/google/uuid"
 	repo "github.com/mmaruf23/go-task-management/internal/repository"
+	"github.com/mmaruf23/go-task-management/pkg/util"
 )
 
 type TaskRepository interface {
-	// CountTaskByUser(ctx context.Context, userID uuid.UUID) (int64, error)
+	CountTaskByUser(ctx context.Context, userID uuid.UUID) (int64, error)
 	CreateTask(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error)
 	// GetTaskByID(ctx context.Context, arg GetTaskByIDParams) (Task, error)
 	ListTaskByUser(ctx context.Context, arg repo.ListTaskByUserParams) ([]repo.Task, error)
@@ -27,27 +28,28 @@ func NewTaskService(repo TaskRepository) *TaskService {
 	}
 }
 
-func (s *TaskService) CreateTask(ctx context.Context, userID *uuid.UUID, req *CreateTaskRequest) (repo.Task, error) {
+func (s *TaskService) CreateTask(ctx context.Context, userID uuid.UUID, req CreateTaskRequest) (*repo.Task, error) {
 	params := repo.CreateTaskParams{
-		UserID:      *userID,
+		UserID:      userID,
 		Title:       req.Title,
 		Description: req.Description,
 	}
 
 	task, err := s.repo.CreateTask(ctx, params)
 	if err != nil {
-		return task, errors.New("failed create new task")
+		return nil, errors.New("failed create new task")
 	}
 
-	return task, nil
+	return &task, nil
 
 }
 
-func (s *TaskService) GetUserTasks(ctx context.Context, userID *uuid.UUID) ([]repo.Task, error) {
+func (s *TaskService) GetUserTasks(ctx context.Context, userID uuid.UUID, pagination PaginationRequest) (*util.Paginated[*[]repo.Task], error) {
+
 	params := repo.ListTaskByUserParams{
-		UserID: *userID,
-		Limit:  10,
-		Offset: 1,
+		UserID: userID,
+		Limit:  pagination.Limit,
+		Offset: pagination.Offset(),
 	}
 
 	tasks, err := s.repo.ListTaskByUser(ctx, params)
@@ -55,9 +57,13 @@ func (s *TaskService) GetUserTasks(ctx context.Context, userID *uuid.UUID) ([]re
 		return nil, err
 	}
 
-	if len(tasks) == 0 {
-		return nil, errors.New("cannot found any tasks")
+	count, err := s.repo.CountTaskByUser(ctx, userID)
+	if err != nil {
+		return nil, err
 	}
 
-	return tasks, nil
+	return &util.Paginated[*[]repo.Task]{
+		Data: &tasks,
+		Meta: *util.BuildPaginationMeta(pagination.Page, pagination.Limit, count),
+	}, nil
 }
