@@ -7,6 +7,7 @@ import (
 	"github.com/mmaruf23/go-task-management/internal/config"
 	"github.com/mmaruf23/go-task-management/internal/db"
 	"github.com/mmaruf23/go-task-management/internal/feature/auth"
+	"github.com/mmaruf23/go-task-management/internal/feature/task"
 )
 
 func main() {
@@ -25,8 +26,12 @@ func main() {
 	authService := auth.NewAuthService(queries, jwtService)
 	authHandler := auth.NewAuthHandler(authService)
 
+	taskService := task.NewTaskService(queries)
+	taskHandler := task.NewTaskHandler(taskService)
 	r.POST("/register", authHandler.Register)
 	r.POST("/login", authHandler.Login)
+
+	r.POST("/task", auth.AuthMiddleware(jwtService), taskHandler.AddNewTask)
 
 	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("failed to start server: %v", err)

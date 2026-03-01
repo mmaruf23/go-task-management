@@ -1,5 +1,5 @@
 @url = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzIxNzQ1NTksInVzZXJfaWQiOiI0OGFlY2ZkNi1mOTU3LTRiMjQtYTA1Mi1hNzgwNmY1YWFmYTcifQ.n7UnfhbHPR6gyewcDNe0Dp9YjRAvau3bTdbLcMO4P70
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzI0NTQ2MzcsInVzZXJfaWQiOiJiNjFiNTk2Ny04ZmJlLTQ4YWEtYmM1MC05ZmVlOWMzMTY0ZTAifQ.oWRSX_4JHSkL4go6zTWykRGDJoMuKYt8Ujexcrz2z34
 
 ### REGISTER
 POST {{url}}/register HTTP/1.1
@@ -18,4 +18,14 @@ Content-Type: application/json
 {
   "email": "ini@email.com",
   "password": "inipassword"
+}
+
+### CREATE TASK
+POST {{url}}/task HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "title task test",
+  "description": "description test"
 }

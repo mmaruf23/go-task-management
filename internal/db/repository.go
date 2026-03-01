@@ -14,9 +14,9 @@ type UserRepository interface {
 
 type TaskRepository interface {
 	// CountTaskByUser(ctx context.Context, userID uuid.UUID) (int64, error)
-	CreateTask(ctx context.Context, arg *CreateTaskParams) (Task, error)
+	CreateTask(ctx context.Context, arg CreateTaskParams) (Task, error)
 	// GetTaskByID(ctx context.Context, arg GetTaskByIDParams) (Task, error)
-	// ListTaskByUser(ctx context.Context, arg ListTaskByUserParams) ([]Task, error)
+	ListTaskByUser(ctx context.Context, arg ListTaskByUserParams) ([]Task, error)
 	// UpdateStatus(ctx context.Context, arg UpdateStatusParams) (int64, error)
 	// UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error)
 }

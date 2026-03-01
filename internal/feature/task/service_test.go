@@ -12,7 +12,7 @@ import (
 func TestCreateTask_Success(t *testing.T) {
 	ctx := context.Background()
 	mockRepo := &mockTaskRepo{
-		createTaskFunc: func(ctx context.Context, arg *db.CreateTaskParams) (db.Task, error) {
+		createTaskFunc: func(ctx context.Context, arg db.CreateTaskParams) (db.Task, error) {
 			return db.Task{
 				ID:          uuid.New(),
 				Title:       arg.Title,
@@ -30,7 +30,7 @@ func TestCreateTask_Success(t *testing.T) {
 		Description: nil,
 	}
 
-	task, err := service.CreateTask(ctx, userID, req)
+	task, err := service.CreateTask(ctx, &userID, req)
 
 	assert.NoError(t, err)
 	assert.NotEqual(t, 0, task.ID)
@@ -38,12 +38,46 @@ func TestCreateTask_Success(t *testing.T) {
 
 }
 
+func TestGetTaskByUser_Success(t *testing.T) {
+	mockRepo := &mockTaskRepo{
+		listTasksByUserFunc: func(ctx context.Context, arg db.ListTaskByUserParams) ([]db.Task, error) {
+			var tasks []db.Task
+			tasks = append(tasks, db.Task{
+				ID:          uuid.New(),
+				UserID:      arg.UserID,
+				Title:       "sample task",
+				Description: nil,
+				Status:      "pending",
+			})
+
+			return tasks, nil
+		},
+	}
+
+	service := NewTaskService(mockRepo)
+
+	ctx := context.Background()
+	userID := uuid.New()
+
+	tasks, err := service.GetUserTasks(ctx, &userID)
+
+	assert.NoError(t, err)
+	assert.Len(t, tasks, 1)
+	assert.Equal(t, "sample task", tasks[0].Title)
+
+}
+
 // MOCKING
 
 type mockTaskRepo struct {
-	createTaskFunc func(ctx context.Context, arg *db.CreateTaskParams) (db.Task, error)
+	createTaskFunc      func(ctx context.Context, arg db.CreateTaskParams) (db.Task, error)
+	listTasksByUserFunc func(ctx context.Context, arg db.ListTaskByUserParams) ([]db.Task, error)
 }
 
-func (r *mockTaskRepo) CreateTask(ctx context.Context, arg *db.CreateTaskParams) (db.Task, error) {
+func (r *mockTaskRepo) CreateTask(ctx context.Context, arg db.CreateTaskParams) (db.Task, error) {
 	return r.createTaskFunc(ctx, arg)
+}
+
+func (r *mockTaskRepo) ListTaskByUser(ctx context.Context, arg db.ListTaskByUserParams) ([]db.Task, error) {
+	return r.listTasksByUserFunc(ctx, arg)
 }

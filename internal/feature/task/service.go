@@ -18,9 +18,9 @@ func NewTaskService(repo db.TaskRepository) *TaskService {
 	}
 }
 
-func (s *TaskService) CreateTask(ctx context.Context, userID uuid.UUID, req *CreateTaskRequest) (db.Task, error) {
-	params := &db.CreateTaskParams{
-		UserID:      userID,
+func (s *TaskService) CreateTask(ctx context.Context, userID *uuid.UUID, req *CreateTaskRequest) (db.Task, error) {
+	params := db.CreateTaskParams{
+		UserID:      *userID,
 		Title:       req.Title,
 		Description: req.Description,
 	}
@@ -32,4 +32,23 @@ func (s *TaskService) CreateTask(ctx context.Context, userID uuid.UUID, req *Cre
 
 	return task, nil
 
+}
+
+func (s *TaskService) GetUserTasks(ctx context.Context, userID *uuid.UUID) ([]db.Task, error) {
+	params := db.ListTaskByUserParams{
+		UserID: *userID,
+		Limit:  10,
+		Offset: 1,
+	}
+
+	tasks, err := s.repo.ListTaskByUser(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(tasks) == 0 {
+		return nil, errors.New("cannot found any tasks")
+	}
+
+	return tasks, nil
 }
