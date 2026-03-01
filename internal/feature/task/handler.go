@@ -17,7 +17,13 @@ func NewTaskHandler(service *TaskService) *TaskHandler {
 	}
 }
 
-func (h *TaskHandler) AddNewTask(c *gin.Context) {
+func (h *TaskHandler) Routes(r *gin.RouterGroup, authMiddlaware gin.HandlerFunc) {
+	task := r.Group("/task", authMiddlaware)
+
+	task.POST("/", h.Create)
+}
+
+func (h *TaskHandler) Create(c *gin.Context) {
 	var req CreateTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

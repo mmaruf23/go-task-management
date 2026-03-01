@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/mmaruf23/go-task-management/internal/db"
+	repo "github.com/mmaruf23/go-task-management/internal/repository"
 	"github.com/mmaruf23/go-task-management/pkg/util"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,8 +15,8 @@ func TestRegister_Success(t *testing.T) {
 	ctx := context.Background()
 
 	mockRepo := &mockUserRepository{
-		createUserFunc: func(ctx context.Context, arg db.CreateUserParams) (db.User, error) {
-			return db.User{
+		createUserFunc: func(ctx context.Context, arg repo.CreateUserParams) (repo.User, error) {
+			return repo.User{
 				ID:       uuid.New(),
 				Name:     arg.Name,
 				Email:    arg.Email,
@@ -45,14 +45,14 @@ func TestLogin_Success(t *testing.T) {
 	ctx := context.Background()
 
 	mockRepo := &mockUserRepository{
-		getUserByEmailFunc: func(ctx context.Context, email string) (db.User, error) {
+		getUserByEmailFunc: func(ctx context.Context, email string) (repo.User, error) {
 
 			hashedPassword, err := util.HashPassword("password")
 			if err != nil {
-				return db.User{}, err
+				return repo.User{}, err
 			}
 
-			return db.User{
+			return repo.User{
 				ID:       uuid.New(),
 				Name:     "user test",
 				Email:    "user@test.com",
@@ -79,19 +79,19 @@ func TestLogin_Success(t *testing.T) {
 // MOCKING
 
 type mockUserRepository struct {
-	createUserFunc     func(ctx context.Context, arg db.CreateUserParams) (db.User, error)
-	getUserByEmailFunc func(ctx context.Context, email string) (db.User, error)
-	getUserByIDFunc    func(ctx context.Context, id uuid.UUID) (db.User, error)
+	createUserFunc     func(ctx context.Context, arg repo.CreateUserParams) (repo.User, error)
+	getUserByEmailFunc func(ctx context.Context, email string) (repo.User, error)
+	getUserByIDFunc    func(ctx context.Context, id uuid.UUID) (repo.User, error)
 }
 
-func (m *mockUserRepository) CreateUser(ctx context.Context, arg db.CreateUserParams) (db.User, error) {
+func (m *mockUserRepository) CreateUser(ctx context.Context, arg repo.CreateUserParams) (repo.User, error) {
 	return m.createUserFunc(ctx, arg)
 }
 
-func (m *mockUserRepository) GetUserByEmail(ctx context.Context, email string) (db.User, error) {
+func (m *mockUserRepository) GetUserByEmail(ctx context.Context, email string) (repo.User, error) {
 	return m.getUserByEmailFunc(ctx, email)
 }
 
-func (m *mockUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (db.User, error) {
+func (m *mockUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (repo.User, error) {
 	return m.getUserByIDFunc(ctx, id)
 }

@@ -3,7 +3,7 @@
 //   sqlc v1.30.0
 // source: task.sql
 
-package db
+package repository
 
 import (
 	"context"

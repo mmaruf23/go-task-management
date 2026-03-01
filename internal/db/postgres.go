@@ -1,4 +1,4 @@
-package config
+package db
 
 import (
 	"context"
@@ -9,3 +9,5 @@ import (
 func NewDB(dsn string) (*pgxpool.Pool, error) {
 	return pgxpool.New(context.Background(), dsn)
 }
+
+// todo : benerin bikin init yang bener

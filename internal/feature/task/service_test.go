@@ -5,15 +5,15 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/mmaruf23/go-task-management/internal/db"
+	repo "github.com/mmaruf23/go-task-management/internal/repository"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateTask_Success(t *testing.T) {
 	ctx := context.Background()
 	mockRepo := &mockTaskRepo{
-		createTaskFunc: func(ctx context.Context, arg db.CreateTaskParams) (db.Task, error) {
-			return db.Task{
+		createTaskFunc: func(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error) {
+			return repo.Task{
 				ID:          uuid.New(),
 				Title:       arg.Title,
 				UserID:      arg.UserID,
@@ -40,9 +40,9 @@ func TestCreateTask_Success(t *testing.T) {
 
 func TestGetTaskByUser_Success(t *testing.T) {
 	mockRepo := &mockTaskRepo{
-		listTasksByUserFunc: func(ctx context.Context, arg db.ListTaskByUserParams) ([]db.Task, error) {
-			var tasks []db.Task
-			tasks = append(tasks, db.Task{
+		listTasksByUserFunc: func(ctx context.Context, arg repo.ListTaskByUserParams) ([]repo.Task, error) {
+			var tasks []repo.Task
+			tasks = append(tasks, repo.Task{
 				ID:          uuid.New(),
 				UserID:      arg.UserID,
 				Title:       "sample task",
@@ -70,14 +70,14 @@ func TestGetTaskByUser_Success(t *testing.T) {
 // MOCKING
 
 type mockTaskRepo struct {
-	createTaskFunc      func(ctx context.Context, arg db.CreateTaskParams) (db.Task, error)
-	listTasksByUserFunc func(ctx context.Context, arg db.ListTaskByUserParams) ([]db.Task, error)
+	createTaskFunc      func(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error)
+	listTasksByUserFunc func(ctx context.Context, arg repo.ListTaskByUserParams) ([]repo.Task, error)
 }
 
-func (r *mockTaskRepo) CreateTask(ctx context.Context, arg db.CreateTaskParams) (db.Task, error) {
+func (r *mockTaskRepo) CreateTask(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error) {
 	return r.createTaskFunc(ctx, arg)
 }
 
-func (r *mockTaskRepo) ListTaskByUser(ctx context.Context, arg db.ListTaskByUserParams) ([]db.Task, error) {
+func (r *mockTaskRepo) ListTaskByUser(ctx context.Context, arg repo.ListTaskByUserParams) ([]repo.Task, error) {
 	return r.listTasksByUserFunc(ctx, arg)
 }

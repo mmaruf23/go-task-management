@@ -4,16 +4,24 @@ import (
 	"context"
 	"errors"
 
-	"github.com/mmaruf23/go-task-management/internal/db"
+	repo "github.com/mmaruf23/go-task-management/internal/repository"
 	"github.com/mmaruf23/go-task-management/pkg/util"
+
+	"github.com/google/uuid"
 )
 
+type UserRepository interface {
+	CreateUser(ctx context.Context, arg repo.CreateUserParams) (repo.User, error)
+	GetUserByEmail(ctx context.Context, email string) (repo.User, error)
+	GetUserByID(ctx context.Context, id uuid.UUID) (repo.User, error)
+}
+
 type AuthService struct {
-	repo db.UserRepository
+	repo UserRepository
 	jwt  JWTInterface
 }
 
-func NewAuthService(repo db.UserRepository, jwt JWTInterface) *AuthService {
+func NewAuthService(repo UserRepository, jwt JWTInterface) *AuthService {
 	return &AuthService{repo: repo, jwt: jwt}
 }
 
@@ -23,7 +31,7 @@ func (s *AuthService) Register(ctx context.Context, req *RegisterRequest) (strin
 		return "", err
 	}
 
-	user, err := s.repo.CreateUser(ctx, db.CreateUserParams{
+	user, err := s.repo.CreateUser(ctx, repo.CreateUserParams{
 		Name:     req.Name,
 		Email:    req.Email,
 		Password: hashedPassword,
