@@ -28,7 +28,7 @@ func NewTaskService(repo TaskRepository) *TaskService {
 	}
 }
 
-func (s *TaskService) CreateTask(ctx context.Context, userID uuid.UUID, req CreateTaskRequest) (*repo.Task, error) {
+func (s *TaskService) CreateTask(ctx context.Context, userID uuid.UUID, req CreateTaskRequest) (*TaskResponse, error) {
 	params := repo.CreateTaskParams{
 		UserID:      userID,
 		Title:       req.Title,
@@ -40,11 +40,11 @@ func (s *TaskService) CreateTask(ctx context.Context, userID uuid.UUID, req Crea
 		return nil, errors.New("failed create new task")
 	}
 
-	return &task, nil
+	return ToTaskResponse(&task), nil
 
 }
 
-func (s *TaskService) GetUserTasks(ctx context.Context, userID uuid.UUID, pagination PaginationRequest) (*util.Paginated[*[]repo.Task], error) {
+func (s *TaskService) GetUserTasks(ctx context.Context, userID uuid.UUID, pagination PaginationRequest) (*util.Paginated[*[]TaskResponse], error) {
 
 	params := repo.ListTaskByUserParams{
 		UserID: userID,
@@ -62,8 +62,8 @@ func (s *TaskService) GetUserTasks(ctx context.Context, userID uuid.UUID, pagina
 		return nil, err
 	}
 
-	return &util.Paginated[*[]repo.Task]{
-		Data: &tasks,
+	return &util.Paginated[*[]TaskResponse]{
+		Data: ToTaskResponses(&tasks),
 		Meta: *util.BuildPaginationMeta(pagination.Page, pagination.Limit, count),
 	}, nil
 }
