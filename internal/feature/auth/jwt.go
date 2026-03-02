@@ -52,3 +52,5 @@ func (j *JWTService) VerifyToken(tokenStr string) (jwt.MapClaims, error) {
 
 	return claims, nil
 }
+
+// todo : enhance claims nya, => registered claims dll, untuk middleware bisa langsung set uuid.

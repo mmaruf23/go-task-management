@@ -39,8 +39,11 @@ func AuthMiddleware(j *JWTService) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+		// userID, err := uuid.Parse(claims.UserID) // todo : lanjutin yang ini. kerjain dulu jwtUtil nya
 		c.Set("user_id", userID)
 
 		c.Next()
 	}
 }
+
+// todo : ganti semua c.JSON + c.Abort jadi c.AbortWithStatusJSON()

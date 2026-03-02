@@ -72,12 +72,47 @@ func TestGetTaskByUser_Success(t *testing.T) {
 
 }
 
+func TestUpdateStatus_Success(t *testing.T) {
+	mockRepo := &mockTaskRepo{
+		updateStatusFun: func(ctx context.Context, arg repo.UpdateStatusParams) (int64, error) {
+			return 1, nil
+		},
+	}
+
+	service := NewTaskService(mockRepo)
+	ctx := context.Background()
+	userID := uuid.New()
+	taskID := uuid.New()
+
+	err := service.UpdateStatus(ctx, userID, taskID, repo.TaskStatusCompleted)
+
+	assert.NoError(t, err)
+}
+func TestUpdateStatus_Fail_NotFound(t *testing.T) {
+	mockRepo := &mockTaskRepo{
+		updateStatusFun: func(ctx context.Context, arg repo.UpdateStatusParams) (int64, error) {
+			return 0, nil
+		},
+	}
+
+	service := NewTaskService(mockRepo)
+	ctx := context.Background()
+	userID := uuid.New()
+	taskID := uuid.New()
+
+	err := service.UpdateStatus(ctx, userID, taskID, repo.TaskStatusCompleted)
+
+	assert.NotNil(t, err)
+	assert.Equal(t, "task not found", err.Error())
+}
+
 // MOCKING
 
 type mockTaskRepo struct {
 	createTaskFunc      func(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error)
 	listTasksByUserFunc func(ctx context.Context, arg repo.ListTaskByUserParams) ([]repo.Task, error)
 	countTaskFunc       func(ctx context.Context, userID uuid.UUID) (int64, error)
+	updateStatusFun     func(ctx context.Context, arg repo.UpdateStatusParams) (int64, error)
 }
 
 func (r *mockTaskRepo) CreateTask(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error) {
@@ -90,4 +125,8 @@ func (r *mockTaskRepo) ListTaskByUser(ctx context.Context, arg repo.ListTaskByUs
 
 func (r *mockTaskRepo) CountTaskByUser(ctx context.Context, userID uuid.UUID) (int64, error) {
 	return r.countTaskFunc(ctx, userID)
+}
+
+func (r *mockTaskRepo) UpdateStatus(ctx context.Context, arg repo.UpdateStatusParams) (int64, error) {
+	return r.updateStatusFun(ctx, arg)
 }

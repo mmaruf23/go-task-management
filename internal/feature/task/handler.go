@@ -23,6 +23,7 @@ func (h *TaskHandler) Routes(r *gin.RouterGroup, authMiddlaware gin.HandlerFunc)
 
 	task.POST("/", h.Create)
 	task.GET("/", h.List)
+	// task.PATCH("/:id")
 }
 
 // HANDLER METHOD
@@ -71,4 +72,36 @@ func (h *TaskHandler) List(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, results)
+}
+
+func (h *TaskHandler) Status(c *gin.Context) {
+	var req TaskStatusRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	status, err := req.Parse()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	userID, err := uuid.Parse(c.GetString("user_id"))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+	taskID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err = h.service.UpdateStatus(c.Request.Context(), userID, taskID, status); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": "success update status"})
+
 }

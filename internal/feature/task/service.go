@@ -14,7 +14,7 @@ type TaskRepository interface {
 	CreateTask(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error)
 	// GetTaskByID(ctx context.Context, arg GetTaskByIDParams) (Task, error)
 	ListTaskByUser(ctx context.Context, arg repo.ListTaskByUserParams) ([]repo.Task, error)
-	// UpdateStatus(ctx context.Context, arg UpdateStatusParams) (int64, error)
+	UpdateStatus(ctx context.Context, arg repo.UpdateStatusParams) (int64, error)
 	// UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error)
 }
 
@@ -66,4 +66,23 @@ func (s *TaskService) GetUserTasks(ctx context.Context, userID uuid.UUID, pagina
 		Data: ToTaskResponses(&tasks),
 		Meta: *util.BuildPaginationMeta(pagination.Page, pagination.Limit, count),
 	}, nil
+}
+
+func (s *TaskService) UpdateStatus(ctx context.Context, userID uuid.UUID, taskID uuid.UUID, status repo.TaskStatus) error {
+	params := repo.UpdateStatusParams{
+		UserID: userID,
+		ID:     taskID,
+		Status: status,
+	}
+
+	rowsAffected, err := s.repo.UpdateStatus(ctx, params)
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("task not found")
+	}
+
+	return nil
 }
