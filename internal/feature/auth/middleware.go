@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mmaruf23/go-task-management/internal/response"
 )
 
 func AuthMiddleware(j *JWTService) gin.HandlerFunc {
@@ -12,15 +13,13 @@ func AuthMiddleware(j *JWTService) gin.HandlerFunc {
 		authHeader := c.GetHeader("Authorization")
 
 		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "authorization header required"})
-			c.Abort()
+			response.AbortError(c, http.StatusUnauthorized, "authorization header required", nil)
 			return
 		}
 
 		parts := strings.SplitN(authHeader, " ", 2)
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid authorization format"})
-			c.Abort()
+			response.AbortError(c, http.StatusUnauthorized, "invalid authorization format", nil)
 			return
 		}
 
@@ -28,15 +27,13 @@ func AuthMiddleware(j *JWTService) gin.HandlerFunc {
 
 		claims, err := j.VerifyToken(tokenStr)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			c.Abort()
+			response.AbortError(c, http.StatusUnauthorized, err.Error(), nil)
 			return
 		}
 
 		userID, ok := claims["user_id"].(string)
 		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token claims"})
-			c.Abort()
+			response.AbortError(c, http.StatusUnauthorized, "invalid token claims", nil)
 			return
 		}
 		// userID, err := uuid.Parse(claims.UserID) // todo : lanjutin yang ini. kerjain dulu jwtUtil nya
@@ -45,5 +42,3 @@ func AuthMiddleware(j *JWTService) gin.HandlerFunc {
 		c.Next()
 	}
 }
-
-// todo : ganti semua c.JSON + c.Abort jadi c.AbortWithStatusJSON()

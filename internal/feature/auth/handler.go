@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mmaruf23/go-task-management/internal/response"
 )
 
 type AuthHandler struct {
@@ -27,13 +28,13 @@ func (h *AuthHandler) Routes(r *gin.RouterGroup, authMiddlaware gin.HandlerFunc)
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
 	token, err := h.service.Register(c.Request.Context(), &req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
@@ -44,13 +45,13 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
 	token, err := h.service.Login(c.Request.Context(), &req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"token": token})
