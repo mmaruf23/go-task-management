@@ -38,7 +38,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"token": token})
+	response.Success(c, http.StatusOK, "REGISTER SUCCESS", token)
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
@@ -54,8 +54,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		response.Error(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"token": token})
 
+	response.Success(c, http.StatusOK, "REGISTER SUCCESS", token)
 }
 
 // todo : implement refresh token

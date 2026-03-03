@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/mmaruf23/go-task-management/internal/response"
 )
 
 type TaskHandler struct {
@@ -30,25 +31,25 @@ func (h *TaskHandler) Routes(r *gin.RouterGroup, authMiddlaware gin.HandlerFunc)
 func (h *TaskHandler) Create(c *gin.Context) {
 	var req CreateTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, err.Error(), nil)
+		// todo : detailnya error validationnya masukin
 		return
 	}
 
-	userID, err := uuid.Parse(c.GetString("user_id"))
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+	value, exists := c.Get("user_id")
+	if !exists {
+		response.Error(c, http.StatusUnauthorized, "UNAUTHORIZED", nil)
 		return
 	}
+	userID := value.(uuid.UUID)
 
 	task, err := h.service.CreateTask(c.Request.Context(), userID, req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"data": task,
-	})
+	response.Success(c, http.StatusOK, "Success create new task", task)
 }
 
 func (h *TaskHandler) List(c *gin.Context) {
@@ -59,49 +60,52 @@ func (h *TaskHandler) List(c *gin.Context) {
 	}
 	req.Normalize()
 
-	userID, err := uuid.Parse(c.GetString("user_id"))
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+	value, exists := c.Get("user_id")
+	if !exists {
+		response.Error(c, http.StatusUnauthorized, "UNAUTHORIZED", nil)
 		return
 	}
+	userID := value.(uuid.UUID)
 
 	results, err := h.service.GetUserTasks(c.Request.Context(), userID, req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
-	c.JSON(http.StatusOK, results)
+	response.Success(c, http.StatusOK, "Success get user task list", results)
 }
 
 func (h *TaskHandler) Status(c *gin.Context) {
 	var req TaskStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
 	status, err := req.Parse()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
-	userID, err := uuid.Parse(c.GetString("user_id"))
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+	value, exists := c.Get("user_id")
+	if !exists {
+		response.Error(c, http.StatusUnauthorized, "UNAUTHORIZED", nil)
 		return
 	}
-	taskID, err := uuid.Parse(c.Param("id"))
+	userID := value.(uuid.UUID)
+
+	taskID, err := uuid.Parse(c.Param("id")) // note : yang kaya gini mau juga kah dibikin helper?
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusUnauthorized, err.Error(), nil)
 		return
 	}
 
 	if err = h.service.UpdateStatus(c.Request.Context(), userID, taskID, status); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		response.Error(c, http.StatusUnauthorized, err.Error(), nil)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": "success update status"})
+	response.Success[any](c, http.StatusOK, "success update status", nil)
 
 }

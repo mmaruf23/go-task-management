@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/mmaruf23/go-task-management/internal/response"
 )
 
@@ -31,12 +32,11 @@ func AuthMiddleware(j *JWTService) gin.HandlerFunc {
 			return
 		}
 
-		userID, ok := claims["user_id"].(string)
-		if !ok {
+		userID, err := uuid.Parse(claims.UserID)
+		if err != nil {
 			response.AbortError(c, http.StatusUnauthorized, "invalid token claims", nil)
 			return
 		}
-		// userID, err := uuid.Parse(claims.UserID) // todo : lanjutin yang ini. kerjain dulu jwtUtil nya
 		c.Set("user_id", userID)
 
 		c.Next()

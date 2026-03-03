@@ -9,11 +9,16 @@ import (
 
 type JWTInterface interface {
 	GenerateToken(userID string) (string, error)
-	VerifyToken(tokenStr string) (jwt.MapClaims, error)
+	VerifyToken(tokenStr string) (*CustomClaims, error)
 }
 
 type JWTService struct {
 	secret []byte
+}
+
+type CustomClaims struct {
+	UserID string `json:"user_id"`
+	jwt.RegisteredClaims
 }
 
 func NewJWTService(secret string) *JWTService {
@@ -22,35 +27,42 @@ func NewJWTService(secret string) *JWTService {
 	}
 }
 
+// func (j *JWTService) GenerateToken(userID string) (string, error) {
+// 	claims := jwt.MapClaims{
+// 		"user_id": userID,
+// 		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+// 	}
+
+// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+// 	return token.SignedString(j.secret)
+// }
+
 func (j *JWTService) GenerateToken(userID string) (string, error) {
-	claims := jwt.MapClaims{
-		"user_id": userID,
-		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+	claims := CustomClaims{
+		UserID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(j.secret)
+	return token.SignedString([]byte(j.secret))
 }
 
-func (j *JWTService) VerifyToken(tokenStr string) (jwt.MapClaims, error) {
+func (j *JWTService) VerifyToken(tokenString string) (*CustomClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(t *jwt.Token) (any, error) { return []byte(j.secret), nil })
 
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("unexpexted signing method")
-		}
-		return j.secret, nil
-	})
+	if err != nil {
+		return nil, err
+	}
 
-	if err != nil || !token.Valid {
+	claims, ok := token.Claims.(*CustomClaims)
+	if !ok || !token.Valid {
 		return nil, errors.New("invalid token")
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return nil, errors.New("invalid token claims")
-	}
-
 	return claims, nil
+
 }
 
 // todo : enhance claims nya, => registered claims dll, untuk middleware bisa langsung set uuid.
