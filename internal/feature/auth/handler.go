@@ -55,7 +55,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, http.StatusOK, "REGISTER SUCCESS", token)
+	response.Success(c, http.StatusOK, "LOGIN SUCCESS", token)
 }
 
 // todo : implement refresh token

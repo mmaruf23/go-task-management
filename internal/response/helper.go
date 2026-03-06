@@ -1,12 +1,24 @@
 package response
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/mmaruf23/go-task-management/pkg/util"
+)
 
-func Success[T any](c *gin.Context, status int, message string, data T) {
+func Success[T any, M util.PaginationMeta](c *gin.Context, status int, message string, data T) {
 	c.JSON(status, ApiResponse[T]{
 		Success: true,
 		Message: message,
 		Data:    &data,
+	})
+}
+
+func SuccessWithMeta[T any](c *gin.Context, status int, message string, data T, meta util.PaginationMeta) {
+	c.JSON(status, ApiResponse[T]{
+		Success: true,
+		Message: message,
+		Data:    &data,
+		Meta:    &meta,
 	})
 }
 

@@ -24,7 +24,7 @@ func (h *TaskHandler) Routes(r *gin.RouterGroup, authMiddlaware gin.HandlerFunc)
 
 	task.POST("/", h.Create)
 	task.GET("/", h.List)
-	// task.PATCH("/:id")
+	task.PATCH("/:id", h.Status)
 }
 
 // HANDLER METHOD
@@ -73,7 +73,7 @@ func (h *TaskHandler) List(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, http.StatusOK, "Success get user task list", results)
+	response.SuccessWithMeta(c, http.StatusOK, "Success get user task list", results.Data, results.Meta)
 }
 
 func (h *TaskHandler) Status(c *gin.Context) {
@@ -95,7 +95,7 @@ func (h *TaskHandler) Status(c *gin.Context) {
 	}
 	userID := value.(uuid.UUID)
 
-	taskID, err := uuid.Parse(c.Param("id")) // note : yang kaya gini mau juga kah dibikin helper?
+	taskID, err := uuid.Parse(c.Param("id")) // note : yang kaya gini mau juga kah dibikin helper? *edit : ya, sekalian validasi format id nya => uuid
 	if err != nil {
 		response.Error(c, http.StatusUnauthorized, err.Error(), nil)
 		return

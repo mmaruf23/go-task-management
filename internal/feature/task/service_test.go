@@ -11,7 +11,7 @@ import (
 
 func TestCreateTask_Success(t *testing.T) {
 	ctx := context.Background()
-	mockRepo := &mockTaskRepo{
+	mockRepo := &MockTaskRepo{
 		createTaskFunc: func(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error) {
 			return repo.Task{
 				ID:          uuid.New(),
@@ -39,7 +39,7 @@ func TestCreateTask_Success(t *testing.T) {
 }
 
 func TestGetTaskByUser_Success(t *testing.T) {
-	mockRepo := &mockTaskRepo{
+	mockRepo := &MockTaskRepo{
 		listTasksByUserFunc: func(ctx context.Context, arg repo.ListTaskByUserParams) ([]repo.Task, error) {
 			var tasks []repo.Task
 			tasks = append(tasks, repo.Task{
@@ -73,7 +73,7 @@ func TestGetTaskByUser_Success(t *testing.T) {
 }
 
 func TestUpdateStatus_Success(t *testing.T) {
-	mockRepo := &mockTaskRepo{
+	mockRepo := &MockTaskRepo{
 		updateStatusFun: func(ctx context.Context, arg repo.UpdateStatusParams) (int64, error) {
 			return 1, nil
 		},
@@ -89,7 +89,7 @@ func TestUpdateStatus_Success(t *testing.T) {
 	assert.NoError(t, err)
 }
 func TestUpdateStatus_Fail_NotFound(t *testing.T) {
-	mockRepo := &mockTaskRepo{
+	mockRepo := &MockTaskRepo{
 		updateStatusFun: func(ctx context.Context, arg repo.UpdateStatusParams) (int64, error) {
 			return 0, nil
 		},
@@ -108,25 +108,25 @@ func TestUpdateStatus_Fail_NotFound(t *testing.T) {
 
 // MOCKING
 
-type mockTaskRepo struct {
+type MockTaskRepo struct {
 	createTaskFunc      func(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error)
 	listTasksByUserFunc func(ctx context.Context, arg repo.ListTaskByUserParams) ([]repo.Task, error)
 	countTaskFunc       func(ctx context.Context, userID uuid.UUID) (int64, error)
 	updateStatusFun     func(ctx context.Context, arg repo.UpdateStatusParams) (int64, error)
 }
 
-func (r *mockTaskRepo) CreateTask(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error) {
+func (r *MockTaskRepo) CreateTask(ctx context.Context, arg repo.CreateTaskParams) (repo.Task, error) {
 	return r.createTaskFunc(ctx, arg)
 }
 
-func (r *mockTaskRepo) ListTaskByUser(ctx context.Context, arg repo.ListTaskByUserParams) ([]repo.Task, error) {
+func (r *MockTaskRepo) ListTaskByUser(ctx context.Context, arg repo.ListTaskByUserParams) ([]repo.Task, error) {
 	return r.listTasksByUserFunc(ctx, arg)
 }
 
-func (r *mockTaskRepo) CountTaskByUser(ctx context.Context, userID uuid.UUID) (int64, error) {
+func (r *MockTaskRepo) CountTaskByUser(ctx context.Context, userID uuid.UUID) (int64, error) {
 	return r.countTaskFunc(ctx, userID)
 }
 
-func (r *mockTaskRepo) UpdateStatus(ctx context.Context, arg repo.UpdateStatusParams) (int64, error) {
+func (r *MockTaskRepo) UpdateStatus(ctx context.Context, arg repo.UpdateStatusParams) (int64, error) {
 	return r.updateStatusFun(ctx, arg)
 }

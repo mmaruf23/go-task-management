@@ -64,5 +64,3 @@ func (j *JWTService) VerifyToken(tokenString string) (*CustomClaims, error) {
 	return claims, nil
 
 }
-
-// todo : enhance claims nya, => registered claims dll, untuk middleware bisa langsung set uuid.

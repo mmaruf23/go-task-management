@@ -1,5 +1,5 @@
 @url = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzI0NzU0ODMsInVzZXJfaWQiOiJiNjFiNTk2Ny04ZmJlLTQ4YWEtYmM1MC05ZmVlOWMzMTY0ZTAifQ.CBEtZitIAAqmWx-WBBCCiLCt4yYx2oGJdDPEOr297V4
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjYxYjU5NjctOGZiZS00OGFhLWJjNTAtOWZlZTljMzE2NGUwIiwiZXhwIjoxNzcyODc3MDEwfQ.TU2FcDgJfMo74lrECf80GbgD1OjWLtwlD_LphpGHb9s
 
 ### REGISTER
 POST {{url}}/auth/register HTTP/1.1
@@ -26,10 +26,19 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "title": "title task test 4",
+  "title": "",
   "description": "description test"
 }
 
 ### GET USER TASK
 GET {{url}}/task?page=4&limit=1 HTTP/1.1
 Authorization: Bearer {{token}}
+
+### UPDATE STATUS
+PATCH {{url}}/task/3ab76e93-0e2a-4458-935b-6309027604b6
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "completed"
+}
