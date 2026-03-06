@@ -28,7 +28,8 @@ func (h *AuthHandler) Routes(r *gin.RouterGroup, authMiddlaware gin.HandlerFunc)
 func (h *AuthHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, http.StatusBadRequest, err.Error(), nil)
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", response.ToErrorMap(err))
+
 		return
 	}
 
@@ -38,14 +39,15 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, http.StatusOK, "REGISTER SUCCESS", token)
+	response.Success(c, http.StatusOK, "REGISTER_SUCCESS", &token)
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, http.StatusBadRequest, err.Error(), nil)
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", response.ToErrorMap(err))
+
 		return
 	}
 
@@ -55,7 +57,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, http.StatusOK, "LOGIN SUCCESS", token)
+	response.Success(c, http.StatusOK, "LOGIN_SUCCESS", &token)
 }
 
 // todo : implement refresh token

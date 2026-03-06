@@ -27,16 +27,6 @@ func NewJWTService(secret string) *JWTService {
 	}
 }
 
-// func (j *JWTService) GenerateToken(userID string) (string, error) {
-// 	claims := jwt.MapClaims{
-// 		"user_id": userID,
-// 		"exp":     time.Now().Add(time.Hour * 24).Unix(),
-// 	}
-
-// 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-// 	return token.SignedString(j.secret)
-// }
-
 func (j *JWTService) GenerateToken(userID string) (string, error) {
 	claims := CustomClaims{
 		UserID: userID,

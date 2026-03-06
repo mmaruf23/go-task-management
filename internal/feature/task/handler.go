@@ -31,8 +31,7 @@ func (h *TaskHandler) Routes(r *gin.RouterGroup, authMiddlaware gin.HandlerFunc)
 func (h *TaskHandler) Create(c *gin.Context) {
 	var req CreateTaskRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, http.StatusBadRequest, err.Error(), nil)
-		// todo : detailnya error validationnya masukin
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", response.ToErrorMap(err))
 		return
 	}
 
@@ -55,7 +54,7 @@ func (h *TaskHandler) Create(c *gin.Context) {
 func (h *TaskHandler) List(c *gin.Context) {
 	var req PaginationRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		c.JSON(http.StatusBadRequest, err.Error())
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", response.ToErrorMap(err))
 		return
 	}
 	req.Normalize()
@@ -79,7 +78,8 @@ func (h *TaskHandler) List(c *gin.Context) {
 func (h *TaskHandler) Status(c *gin.Context) {
 	var req TaskStatusRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		response.Error(c, http.StatusBadRequest, err.Error(), nil)
+		response.Error(c, http.StatusBadRequest, "VALIDATION_ERROR", response.ToErrorMap(err))
+
 		return
 	}
 

@@ -7,5 +7,5 @@ type ApiResponse[T any] struct {
 	Message string               `json:"message"`
 	Data    *T                   `json:"data,omitempty"`
 	Meta    *util.PaginationMeta `json:"meta,omitempty"`
-	Error   *any                 `json:"error,omitempty"`
+	Errors  *map[string][]string `json:"errors,omitempty"`
 }
