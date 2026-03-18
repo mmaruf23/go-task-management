@@ -1,0 +1,53 @@
+@url = http://localhost:8080
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYjYxYjU5NjctOGZiZS00OGFhLWJjNTAtOWZlZTljMzE2NGUwIiwiZXhwIjoxNzczODMwOTI3fQ.H8AnCy0ha2I1s81hROtH8r38PJZFlGkIYCfWuGKYN-A
+
+### REGISTER
+POST {{url}}/auth/register HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "ininame",
+  "email": "ini@email.com",
+  "password": "inipassword"
+}
+
+### LOGIN
+POST {{url}}/auth/login HTTP/1.1
+Content-Type: application/json
+
+{
+  "email": "ini@email.com",
+  "password": "iniupdatedpassword"
+}
+
+### UPDATE PASSWORD
+PATCH {{url}}/auth/password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "password": "iniupdatedpassword"
+}
+
+### CREATE TASK
+POST {{url}}/task HTTP/1.1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "title task test 4",
+  "description": "description test"
+}
+
+### GET USER TASK
+GET {{url}}/task?page=4&limit=1 HTTP/1.1
+Authorization: Bearer {{token}}
+
+### UPDATE STATUS
+PATCH {{url}}/task/3ab76e93-0e2a-4458-935b-6309027604b6
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "completed"
+}
