@@ -32,7 +32,7 @@ func AuthMiddleware(j *JWTService) gin.HandlerFunc {
 			return
 		}
 
-		userID, err := uuid.Parse(claims.UserID)
+		userID, err := uuid.Parse(claims.Subject)
 		if err != nil {
 			response.AbortError(c, http.StatusUnauthorized, "invalid token claims", nil)
 			return

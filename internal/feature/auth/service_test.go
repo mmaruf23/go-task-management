@@ -40,10 +40,10 @@ func TestRegister_Success(t *testing.T) {
 		Password: params.Password,
 	}
 
-	token, err := service.Register(ctx, req)
+	userID, err := service.Register(ctx, req)
 
 	assert.NoError(t, err)
-	assert.NotEqual(t, "", token)
+	assert.NotEqual(t, "", userID)
 }
 
 func TestLogin_Success(t *testing.T) {
@@ -67,10 +67,10 @@ func TestLogin_Success(t *testing.T) {
 		Password: "password",
 	}
 
-	token, err := service.Login(ctx, req)
+	userID, err := service.Login(ctx, req)
 
 	assert.NoError(t, err)
-	assert.NotEqual(t, "", token)
+	assert.NotEqual(t, "", userID)
 }
 
 func TestUpdatePassword_Success(t *testing.T) {
@@ -88,6 +88,27 @@ func TestUpdatePassword_Success(t *testing.T) {
 	err := service.UpdatePassword(ctx, userID, req)
 
 	assert.NoError(t, err)
+}
+
+func TestGenerateToken_Success(t *testing.T) {
+	ctx := context.Background()
+	mockRepo := new(MockUserRepo)
+	jti := uuid.New()
+	mockRepo.On("CreateToken", mock.Anything, mock.Anything).Return(nil)
+
+	jwtService := NewJWTService("iniceritanyasecret")
+	service := NewAuthService(mockRepo, jwtService)
+
+	userID := uuid.New()
+	token, err := service.GenerateToken(ctx, jti, userID)
+
+	assert.NoError(t, err)
+	assert.NotEqual(t, "", token.Access)
+	assert.NotEqual(t, "", token.Refresh)
+
+	rtoken, err := jwtService.VerifyToken(token.Refresh)
+	assert.NoError(t, err)
+	assert.Equal(t, jti.String(), rtoken.ID)
 }
 
 // MOCKING
@@ -110,5 +131,25 @@ func (m *MockUserRepo) GetUserByID(ctx context.Context, id uuid.UUID) (repo.User
 }
 func (m *MockUserRepo) UpdatePassword(ctx context.Context, arg repo.UpdatePasswordParams) (int64, error) {
 	args := m.Called(ctx, arg)
+	return args.Get(0).(int64), args.Error(1)
+}
+
+func (m *MockUserRepo) CreateToken(ctx context.Context, arg repo.CreateTokenParams) error {
+	args := m.Called(ctx, arg)
+	return args.Error(0)
+}
+
+func (m *MockUserRepo) ReplaceToken(ctx context.Context, arg repo.ReplaceTokenParams) (int64, error) {
+	args := m.Called(ctx, arg)
+	return args.Get(0).(int64), args.Error(1)
+}
+
+func (m *MockUserRepo) RevokeToken(ctx context.Context, id uuid.UUID) (int64, error) {
+	args := m.Called(ctx, id)
+	return args.Get(0).(int64), args.Error(1)
+}
+
+func (m *MockUserRepo) RevokeAllToken(ctx context.Context, userID uuid.UUID) (int64, error) {
+	args := m.Called(ctx, userID)
 	return args.Get(0).(int64), args.Error(1)
 }

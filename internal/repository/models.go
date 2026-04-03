@@ -64,6 +64,15 @@ type Task struct {
 	UpdatedAt   pgtype.Timestamp
 }
 
+type Token struct {
+	ID         uuid.UUID
+	UserID     uuid.UUID
+	CreatedAt  pgtype.Timestamp
+	ExpiresAt  pgtype.Timestamp
+	RevokedAt  pgtype.Timestamp
+	ReplacedBy pgtype.UUID
+}
+
 type User struct {
 	ID        uuid.UUID
 	Name      string
